@@ -32,8 +32,12 @@ def tv_show_patterns_file():
                     regex_tv_shows_pattern2,
                     regex_tv_shows_pattern3, 
                     regex_tv_shows_pattern4,
-                    regex_tv_shows_pattern5]
+                    regex_tv_shows_pattern5,
+                    regex_tv_shows_pattern6]
     return regex_patterns
+
+
+#def tv_show_patterns_folder():
 
 
 # TODO: regex for movies
@@ -46,7 +50,7 @@ def traverse_root(folder_structure, regex_tvs_file):
         try:
             path = root.split(os.sep)
             # Prints folder name
-            #print((len(path) - 1) * '---', os.path.basename(root))
+            print((len(path) - 1) * '---', os.path.basename(root))
         except UnicodeEncodeError:
             pass
         for file in files:
@@ -56,6 +60,7 @@ def traverse_root(folder_structure, regex_tvs_file):
                     for pattern in regex_tvs_file:
                         if pattern.findall(file):
                             print(len(path) * '---', file)
+                            break
             except UnicodeEncodeError:
                 pass
 
