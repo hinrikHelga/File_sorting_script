@@ -1,4 +1,4 @@
-import sys, glob, shutil, os, re
+import sys, glob, shutil, os, re, regex
 
 def main():
     downloads = sys.argv[1]
@@ -97,6 +97,26 @@ def traverse_root(folder_structure, regex_tvs_file, regex_tvs_folder):
         except UnicodeEncodeError:
             pass
    
+
+def get_show_name_by_file(file):
+    all_tv_show_patterns = get_all_tv_shows_pattern()
+    words_only = regex.findall(r"[a-zA-Z0-9\p{L}]+", file)
+    for i in words_only:
+        if all_tv_show_patterns.match(i):
+            words_only = words_only[:words_only.index(i)]
+            for j in range(0, len(words_only)):
+                words_only[j] = words_only[j].capitalize()
+            words_only = " ".join(words_only)
+            break
+    return words_only
+
+def get_show_name_by_folder(folder_name):
+    # TODO: Implement
+    return 0
+  
+def get_all_tv_shows_pattern():
+    return re.compile(r"([Ss]{1}[0-9]{1,2}|[Ee]{1}[0-9]{1,2})|(Season)\s?([0-9]{1,2})\s*[\-]*\s*(Episode)\s*([0-9]{1,2})|([0-9]{3,4}[a|b]?)|(\[[0-9]{1,2}\.[0-9]{1,2}\])|([0-9]{1,2}x[0-9]{1,2})|(hdtv|HDTV)")
+
 
 def validate_extension(f_extension):
     # Only validate video files
