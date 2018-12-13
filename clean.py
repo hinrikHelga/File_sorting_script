@@ -80,7 +80,9 @@ def traverse_root(folder_structure, regex_tvs_file, regex_tvs_folder):
             path = root.split(os.sep)
             for pattern in regex_tvs_folder:
                 if (pattern.findall(os.path.basename(root))):
-                    print((len(path) - 1) * '---', os.path.basename(root))
+                    folder = os.path.basename(root)
+                    #print((len(path) - 1) * '---', os.path.basename(root))
+                    print(get_show_name(folder, get_all_tv_show_folder_pattern()))
                     # TODO: code that gets folder name, season and creates folder/-s from the data (also check if the folder has alread been created)
                     for file in files:
                         try:
@@ -89,7 +91,8 @@ def traverse_root(folder_structure, regex_tvs_file, regex_tvs_folder):
                                 for pattern in regex_tvs_file:
                                     if pattern.findall(file):
                                         # TODO: code that gets file name and season and does stuff with it
-                                        print(len(path) * '---', file)
+                                        print(get_show_name(file, get_all_tv_shows_file_pattern()))
+                                        #print(len(path) * '---', file)
                                         break
                         except UnicodeEncodeError:
                             pass       
@@ -98,11 +101,10 @@ def traverse_root(folder_structure, regex_tvs_file, regex_tvs_folder):
             pass
    
 
-def get_show_name_by_file(file):
-    all_tv_show_patterns = get_all_tv_shows_pattern()
+def get_show_name(file, reg_pat):
     words_only = regex.findall(r"[a-zA-Z0-9\p{L}]+", file)
     for i in words_only:
-        if all_tv_show_patterns.match(i):
+        if reg_pat.search(i) != None:
             words_only = words_only[:words_only.index(i)]
             for j in range(0, len(words_only)):
                 words_only[j] = words_only[j].capitalize()
@@ -110,12 +112,18 @@ def get_show_name_by_file(file):
             break
     return words_only
 
+
 def get_show_name_by_folder(folder_name):
     # TODO: Implement
     return 0
-  
-def get_all_tv_shows_pattern():
+
+
+def get_all_tv_shows_file_pattern():
     return re.compile(r"([Ss]{1}[0-9]{1,2}|[Ee]{1}[0-9]{1,2})|(Season)\s?([0-9]{1,2})\s*[\-]*\s*(Episode)\s*([0-9]{1,2})|([0-9]{3,4}[a|b]?)|(\[[0-9]{1,2}\.[0-9]{1,2}\])|([0-9]{1,2}x[0-9]{1,2})|(hdtv|HDTV)")
+
+
+def get_all_tv_show_folder_pattern():
+    return re.compile(r"([Ss]{1}[0-9]{1,2}|[Ee]{1}[0-9]{1,3})|([Ss]{1}eason\s*\.?[0-9]{1,4})|(^[0-9]{1,2}$)|([0-9]{1,2}\.\s+[Ss]{1}eason)|([0-9]{1,2}?\.\s*?[Ss]{1}er.a|[Ss]{1}er.a\s*[0-9]{1,2})|([Ss]{1}eries\s?[0-9]{1,2})|(Episode\s?[0-9]{1,3})")
 
 
 def validate_extension(f_extension):
