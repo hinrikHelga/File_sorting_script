@@ -1,13 +1,56 @@
 import sys, glob, shutil, os, re, regex
 
 def main():
-    downloads = sys.argv[1]
+    #downloads = sys.argv[1]
+    downloads = r"C:\Users\Hinrik Helgason\Google Drive\HR\3. ár\Haustönn\Forritunarmalid Python\Hopverkefni_data\downloads"
     #structured = sys.argv[2]
+
     regex_tvs_file = tv_show_patterns_file()
     regex_tvs_folder = tv_show_patterns_folder()
 
     # Traverse recursively through root directory
     traverse_root(downloads, regex_tvs_file, regex_tvs_folder)
+
+
+def traverse_root(folder_structure, regex_tvs_file, regex_tvs_folder):
+    for root, dirs, files in os.walk(folder_structure):
+        try:
+            path = root.split(os.sep)
+            param_path = folder_structure.split(os.sep)
+
+            root_index = param_path[-1]
+            root_dir_index = path.index(root_index)
+            dir_lis = [x for x in path[root_dir_index:]]
+
+            for pattern in regex_tvs_folder:
+                match_object = pattern.findall(os.path.basename(root))
+                folder = os.path.basename(root)
+
+                # If the folder is a TV show
+                if (match_object):
+                    
+                    # TODO: code that gets folder name, season and creates folder/-s from the data (also check if the folder has alread been created)
+                    
+                    
+                    #make_directory(get_show_name(folder, get_all_tv_show_folder_pattern()))
+                    
+                    #print((len(path) - 1) * '---', os.path.basename(root)) 
+                    for file in files:
+                        try:
+                            extension = file.split(".")[-1]
+                            if (validate_extension(extension)):
+                                for pattern in regex_tvs_file:
+                                    if pattern.search(file) != None:
+                                        # TODO: code that gets file name and season and does stuff with it
+                                        #print(get_show_name(file, get_all_tv_shows_file_pattern()))
+                                        #print(len(path) * '---', file)
+                                        break
+                        except UnicodeEncodeError:
+                            pass       
+                    break     
+        except UnicodeEncodeError:
+            pass
+            
 
 
 def tv_show_patterns_file():
@@ -70,35 +113,26 @@ def tv_show_patterns_folder():
     return regex_patterns
 
 
-# TODO: regex for movies
-# TODO: regex for Movie folders
+def get_season_and_number(pattern):
+    # Edge case
+    if (pattern[0] == "24"):
+        return None
+    return "Season " + get_number(pattern[0])
+    
 
+# Gets the number of a season in string
+def get_number(s):
+    number = ""
+    for c in s:
+        if (c.isdigit()):
+            number += c
 
-def traverse_root(folder_structure, regex_tvs_file, regex_tvs_folder):
-    for root, dirs, files in os.walk(folder_structure):
-        try:
-            path = root.split(os.sep)
-            for pattern in regex_tvs_folder:
-                if (pattern.findall(os.path.basename(root))):
-                    folder = os.path.basename(root)
-                    #print((len(path) - 1) * '---', os.path.basename(root))
-                    print(get_show_name(folder, get_all_tv_show_folder_pattern()))
-                    # TODO: code that gets folder name, season and creates folder/-s from the data (also check if the folder has alread been created)
-                    for file in files:
-                        try:
-                            extension = file.split(".")[-1]
-                            if (validate_extension(extension)):
-                                for pattern in regex_tvs_file:
-                                    if pattern.findall(file):
-                                        # TODO: code that gets file name and season and does stuff with it
-                                        print(get_show_name(file, get_all_tv_shows_file_pattern()))
-                                        #print(len(path) * '---', file)
-                                        break
-                        except UnicodeEncodeError:
-                            pass       
-                    break             
-        except UnicodeEncodeError:
-            pass
+    number = int(number)
+    if (number < 10):
+        number = str(number)
+        number = "0" + number
+    number = str(number)
+    return number
    
 
 def get_show_name(file, reg_pat):
@@ -111,11 +145,6 @@ def get_show_name(file, reg_pat):
             words_only = " ".join(words_only)
             break
     return words_only
-
-
-def get_show_name_by_folder(folder_name):
-    # TODO: Implement
-    return 0
 
 
 def get_all_tv_shows_file_pattern():
@@ -135,6 +164,11 @@ def validate_extension(f_extension):
     
     return False
 
+
 # TODO: structured directory functionality
+def make_directory(folder_name):
+    dir_absolute_path = sys.argv[2] + folder_name
+    if not os.path.exists(dir_absolute_path):
+        os.makedirs(dir_absolute_path)
 
 print(main())
