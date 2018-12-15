@@ -1,8 +1,8 @@
 import sys, glob, shutil, os, re, regex
 
 def main():
-    #downloads = sys.argv[1]
-    downloads = r"C:\Users\Hinrik Helgason\Google Drive\HR\3. ár\Haustönn\Forritunarmalid Python\Hopverkefni_data\downloads"
+    downloads = sys.argv[1]
+    #downloads = r"C:\Users\Hinrik Helgason\Google Drive\HR\3. ár\Haustönn\Forritunarmalid Python\Hopverkefni_data\downloads"
     #structured = sys.argv[2]
 
     regex_tvs_file = tv_show_patterns_file()
@@ -12,7 +12,26 @@ def main():
     traverse_root(downloads, regex_tvs_file, regex_tvs_folder)
 
 
+
 def traverse_root(folder_structure, regex_tvs_file, regex_tvs_folder):
+    src_dir = sys.argv[1]
+    stru_dir = sys.argv[2]
+
+    next_immediate_item = next(os.walk(src_dir))[1]
+    for item in next_immediate_item:
+        src_path = src_dir + item
+        for patt in regex_tvs_folder:
+            match_object = patt.findall(item)
+            if len(match_object) > 0:
+
+                if os.path.isdir(src_path):
+                    make_directory(item, get_show_name(item, get_all_tv_show_folder_pattern()), src_dir, stru_dir)
+            break
+    
+    
+    
+    
+    
     for root, dirs, files in os.walk(folder_structure):
         try:
             path = root.split(os.sep)
@@ -25,14 +44,13 @@ def traverse_root(folder_structure, regex_tvs_file, regex_tvs_folder):
             for pattern in regex_tvs_folder:
                 match_object = pattern.findall(os.path.basename(root))
                 folder = os.path.basename(root)
-
+                #print(folder)
                 # If the folder is a TV show
                 if (match_object):
-                    
                     # TODO: code that gets folder name, season and creates folder/-s from the data (also check if the folder has alread been created)
                     
-                    
-                    #make_directory(get_show_name(folder, get_all_tv_show_folder_pattern()))
+                    #print(folder)
+                    #make_directory(get_show_name(folder, get_all_tv_show_folder_pattern()), src_dir, stru_dir )
                     
                     #print((len(path) - 1) * '---', os.path.basename(root)) 
                     for file in files:
@@ -113,11 +131,16 @@ def tv_show_patterns_folder():
     return regex_patterns
 
 
-def get_season_and_number(pattern):
+def get_season_and_number(item):
     # Edge case
-    if (pattern[0] == "24"):
+    match_object = None
+    for patt in tv_show_patterns_folder():
+            match_object = patt.findall(item)
+            if len(match_object) > 0:
+                break
+    if (item[0] == "24"):
         return None
-    return "Season " + get_number(pattern[0])
+    return "Season " + get_number(match_object[0])
     
 
 # Gets the number of a season in string
@@ -144,7 +167,6 @@ def get_show_name(file, reg_pat):
                 words_only[j] = words_only[j].capitalize()
             words_only = " ".join(words_only)
             break
-    return words_only
 
 
 def get_all_tv_shows_file_pattern():
@@ -166,9 +188,29 @@ def validate_extension(f_extension):
 
 
 # TODO: structured directory functionality
-def make_directory(folder_name):
-    dir_absolute_path = sys.argv[2] + folder_name
-    if not os.path.exists(dir_absolute_path):
-        os.makedirs(dir_absolute_path)
+def make_directory(original, folder_name, src_dir, stru_dir):
+    patt = tv_show_patterns_folder
+    
+    
+    #print(match_object)
+    #print('Original: ', original)
+    #print('folder_name: ', folder_name)
+    #rint('Source: ', src_dir)
+    #print('Structured: ', stru_dir)
+    stru_dir_absolute_path = str(stru_dir) + str(folder_name)
+    src_dir_absoulute_path = src_dir + original
+    if not os.path.exists(stru_dir_absolute_path):
+        #print('I am now creating the path: ', stru_dir_absolute_path)
+        os.makedirs(stru_dir_absolute_path)
+    try:
+        next_immediate_item = next(os.walk(src_dir_absoulute_path))[1]
+        for item in next_immediate_item:
+       
+            if os.path.isdir(src_dir_absoulute_path):
+                #print(item)
+                make_directory(item, get_show_name(item, get_all_tv_show_folder_pattern()), src_dir_absoulute_path + '/', stru_dir_absolute_path + '/')
+    except StopIteration:
+        pass
+
 
 print(main())
