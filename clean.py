@@ -16,18 +16,23 @@ def main():
 def traverse_root(folder_structure, regex_tvs_file, regex_tvs_folder):
     src_dir = sys.argv[1]
     stru_dir = sys.argv[2]
+    print(src_dir)
+    print(stru_dir)
 
-    next_immediate_item = next(os.walk(src_dir))[1]
-    for item in next_immediate_item:
-        src_path = src_dir + item
-        for patt in regex_tvs_folder:
-            match_object = patt.findall(item)
-            if len(match_object) > 0:
+    try:
+        next_immediate_item = next(os.walk(src_dir))[1]
 
-                if os.path.isdir(src_path):
-                    make_directory(item, get_show_name(item, get_all_tv_show_folder_pattern()), src_dir, stru_dir)
-            break
-    
+        for item in next_immediate_item:
+            src_path = src_dir + item
+            for patt in regex_tvs_folder:
+                match_object = patt.findall(item)
+                if len(match_object) > 0:
+
+                    if os.path.isdir(src_path):
+                        make_directory(item, get_show_name(item, get_all_tv_show_folder_pattern()), src_dir, stru_dir)
+                break
+    except StopIteration:
+        pass
     
     
     
@@ -160,13 +165,43 @@ def get_number(s):
 
 def get_show_name(file, reg_pat):
     words_only = regex.findall(r"[a-zA-Z0-9\p{L}]+", file)
-    for i in words_only:
-        if reg_pat.search(i) != None:
-            words_only = words_only[:words_only.index(i)]
+    for i, item in enumerate(words_only):
+        if reg_pat.search(item) != None:
+            # So TV shows whose is name is a number is validated
+            if i == 0 and item.isdigit():
+                continue
+            
+            # If there is a number in the TV Show title but it's not the season number
+            elif not regex.search(r"([Ss]{1}eason|[Ss]{1}erie|[Ss]{1}er.a)", words_only[i-1]) and item.isdigit():
+                continue 
+
+            # If the word in list before the match, i.e. if the match is "2" and word before "2" is equal to "Season", remove Season
+            elif regex.search(r"([Ss]{1}eason|[Ss]{1}erie|[Ss]{1}er.a)", words_only[i-1]):
+                words_only = words_only[:words_only.index(words_only[i-1])]                
+
+            # Otherwise, get the elements before the regex match
+            else:
+                words_only = words_only[:words_only.index(item)]
+            
             for j in range(0, len(words_only)):
                 words_only[j] = words_only[j].capitalize()
             words_only = " ".join(words_only)
             break
+
+        # If the season number is year instead of incremented numbers
+        elif regex.search(r"([Ss]{1}eason|[Ss]{1}erie|[Ss]{1}er.a)", words_only[i-1]) and len(item) == 4:
+            try:
+                item_int = int(item)
+            except ValueError:
+                continue
+            words_only[i - 1] = words_only[i - 1] + " " + words_only[i]
+            words_only = words_only[:words_only.index(words_only[i-1])]
+
+            for j in range(0, len(words_only)):
+                words_only[j] = words_only[j].capitalize()
+            words_only = " ".join(words_only)
+            break
+    return words_only
 
 
 def get_all_tv_shows_file_pattern():
@@ -191,7 +226,7 @@ def validate_extension(f_extension):
 def make_directory(original, folder_name, src_dir, stru_dir):
     patt = tv_show_patterns_folder
     
-    
+    print("panus")
     #print(match_object)
     #print('Original: ', original)
     #print('folder_name: ', folder_name)
@@ -208,7 +243,8 @@ def make_directory(original, folder_name, src_dir, stru_dir):
        
             if os.path.isdir(src_dir_absoulute_path):
                 #print(item)
-                make_directory(item, get_show_name(item, get_all_tv_show_folder_pattern()), src_dir_absoulute_path + '/', stru_dir_absolute_path + '/')
+                print(get_show_name(item, get_all_tv_show_folder_pattern))
+                make_directory(item, get_show_name(item, get_all_tv_show_folder_pattern()), src_dir_absoulute_path + "\\", stru_dir_absolute_path + "\\")
     except StopIteration:
         pass
 
