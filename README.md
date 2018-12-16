@@ -12,7 +12,9 @@ Things you need to install the software and how to install them
 
 ```
 You will need to have Python 3.7
-
+```
+[Click here to download Python 3.7](https://www.python.org/downloads/)
+```
 A console to run the script
 ```
 
@@ -21,7 +23,6 @@ A console to run the script
 A step by step series of examples that tell you how to get a development env running
 
 1. Step 1: Download the script
-[Click here to download Python 3.7](https://www.python.org/downloads/)
 2. Step 2: Run the script - python3 clean.py /path/to/download/folder /path/to/structured/folder
 3. Step 3: Profit.
 
