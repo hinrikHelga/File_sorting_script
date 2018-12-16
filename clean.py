@@ -39,14 +39,29 @@ def traverse_root(seperator, regex_tvs_file, regex_tvs_folder):
                 match_object = patt.findall(item)
                 if len(match_object) > 0:
                     if os.path.isdir(src_path):
-                        make_directory(seperator, item, get_show_name(item, get_all_tv_show_folder_pattern(), 'folder'), src_dir, stru_dir)
+                        #print('Folder: ' + get_show_name(item, get_all_tv_show_folder_pattern(), 'folder'))
+                        make_directory(seperator, item, get_show_name(item, get_all_tv_show_folder_pattern(), 'folder'), src_dir, stru_dir + seperator + "TV Shows")
                         pass
                     break
+                else:
+                    if os.path.isdir(src_path):
+                        copy_file_mov(src_dir, stru_dir + seperator + "Movies", item, seperator)
+                        pass
+                    elif os.path.isfile(src_path):
+                        copy_file_mov(src_dir, stru_dir + seperator + "Movies", item, seperator)
+                        pass
             for patt in regex_tvs_file:
                 match_object = patt.findall(item)
                 if len(match_object) > 0:
                     if os.path.isfile(src_path):
-                        copy_file(seperator, src_dir, stru_dir, get_show_name(item, get_all_tv_shows_file_pattern(), 'file'), get_season_and_number(item, tv_show_patterns_file()), item)
+                        copy_file(seperator, src_dir + seperator + item, stru_dir + seperator + "TV Shows", get_show_name(item, get_all_tv_shows_file_pattern(), 'file'), get_season_and_number(item, tv_show_patterns_file()), item)
+                        pass
+                else:
+                    if os.path.isdir(src_path):
+                        copy_file_mov(src_dir, stru_dir + seperator + "Movies", item, seperator)
+                        pass
+                    elif os.path.isfile(src_path):
+                        copy_file_mov(src_dir, stru_dir + seperator + "Movies", item, seperator)
                         pass
 
     except StopIteration:
@@ -257,25 +272,42 @@ def make_directory(sep, original, folder_name, src_dir, stru_dir):
     try:
         next_immediate_item = next(os.walk(src_dir_absoulute_path))[1] +next(os.walk(src_dir_absoulute_path))[2]
         for item in next_immediate_item:
-       
+            src_dir_absoulute_path += sep + item
             if os.path.isdir(src_dir_absoulute_path):
                 make_directory(sep, item, get_show_name(item, get_all_tv_show_folder_pattern(), 'folder'), src_dir_absoulute_path + sep, stru_dir_absolute_path + sep)
 
             if os.path.isfile(src_dir_absoulute_path):
-                copy_file(sep, src_dir_absoulute_path, stru_dir_absolute_path, get_show_name(item, get_all_tv_shows_file_pattern(), 'file'), get_season_and_number(tv_show_patterns_file(), item), item)
+                copy_file(sep, src_dir_absoulute_path, stru_dir_absolute_path, get_show_name(item, get_all_tv_shows_file_pattern(), 'file'), get_season_and_number(item, tv_show_patterns_file()), item)
     except StopIteration:
         pass
 
 def copy_file(seperator, src_dir, stru_dir, show_name, season, file_name):
+    extension = file_name.split(".")[-1]
+    if not validate_extension(extension):
+        return None
     if isinstance(show_name, list):
-        return 0
+        return None
     if season == None:
-        return 0
+        return None
     dir = stru_dir + seperator + show_name + seperator + season
     if not os.path.exists(dir):
         os.makedirs(dir)
-    
-    shutil.copyfile(src_dir + seperator + file_name, dir + seperator + file_name)
+    shutil.copyfile(src_dir, dir + seperator + file_name)
 
     return 0
+
+def copy_file_mov(src_dir, stru_dir, item, seperator):
+    if os.path.isdir(src_dir + seperator + item):
+        next_immediate_item = next(os.walk(src_dir + seperator + item))[1] + next(os.walk(src_dir + seperator + item))[2]
+        for i in next_immediate_item:
+            copy_file_mov(src_dir + seperator + item, stru_dir + seperator + item, i, seperator)
+        return 0
+    if not os.path.exists(stru_dir):
+        os.makedirs(stru_dir)
+    print(stru_dir)
+    try:
+        shutil.copyfile(src_dir + seperator + item, stru_dir)
+    except IsADirectoryError:
+        return 0
+
 print(main())
