@@ -33,8 +33,10 @@ A step by step series of examples that tell you how to get a development env run
 
 ## Programming jokes
 
-* Q: Why did the programmer quit his job?
-* A: Because he didn't get arrays.
-
-* Q: Why do java programmers have to wear glasses?
-* A: Because they don't C#.
+```
+Q: Why did the programmer quit his job?
+A: Because he didn't get arrays.
+------------------------------------------------
+Q: Why do java programmers have to wear glasses?
+A: Because they don't C#.
+```
