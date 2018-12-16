@@ -1,18 +1,13 @@
 import sys, glob, shutil, os, re, regex, platform
 
 def main():
-    #downloads = sys.argv[1]
-    #downloads = r"C:\Users\Hinrik Helgason\Google Drive\HR\3. ár\Haustönn\Forritunarmalid Python\Hopverkefni_data\downloads"
-    #structured = r"C:\Users\Hinrik Helgason\Google Drive\HR\3. ár\Haustönn\Forritunarmalid Python\Hopverkefni_data"
-    #structured = sys.argv[2]
-
     regex_tvs_file = tv_show_patterns_file()
     regex_tvs_folder = tv_show_patterns_folder()
     sep = set_seperator()
 
     # Traverse recursively through root directory
-    #print(get_show_name('the.big.bang.theory.817.hdtv-lol.mp4', get_all_tv_shows_file_pattern()))
     traverse_root(sep, regex_tvs_file, regex_tvs_folder)
+
 
 def set_seperator():
     sep = "/"
@@ -21,25 +16,21 @@ def set_seperator():
 
     return sep
 
-
+# 
 def traverse_root(seperator, regex_tvs_file, regex_tvs_folder):
     src_dir = sys.argv[1]
     stru_dir = sys.argv[2]
-    #src_dir = r"C:\Users\Hinrik Helgason\Google Drive\HR\3. ár\Haustönn\Forritunarmalid Python\Hopverkefni_data\downloads"
-    #stru_dir = r"C:\Users\Hinrik Helgason\Google Drive\HR\3. ár\Haustönn\Forritunarmalid Python\Hopverkefni_data\structured"
-    #print(src_dir)
-    #print(stru_dir)
-    counter = 0
+
     try:
         next_immediate_item = next(os.walk(src_dir))[1] + next(os.walk(src_dir))[2]
         for item in next_immediate_item:
 
             src_path = src_dir + seperator + item
+            # Iterate through list of regex patterns to match with folders
             for patt in regex_tvs_folder:
                 match_object = patt.findall(item)
                 if len(match_object) > 0:
                     if os.path.isdir(src_path):
-                        #print('Folder: ' + get_show_name(item, get_all_tv_show_folder_pattern(), 'folder'))
                         make_directory(seperator, item, get_show_name(item, get_all_tv_show_folder_pattern(), 'folder'), src_dir, stru_dir + seperator + "TV Shows")
                         pass
                     break
@@ -50,6 +41,7 @@ def traverse_root(seperator, regex_tvs_file, regex_tvs_folder):
                     elif os.path.isfile(src_path):
                         copy_file_mov(src_dir, stru_dir + seperator + "Movies", item, seperator)
                         pass
+            # Iterate through list of regex patterns to match with files            
             for patt in regex_tvs_file:
                 match_object = patt.findall(item)
                 if len(match_object) > 0:
@@ -63,50 +55,8 @@ def traverse_root(seperator, regex_tvs_file, regex_tvs_folder):
                     elif os.path.isfile(src_path):
                         copy_file_mov(src_dir, stru_dir + seperator + "Movies", item, seperator)
                         pass
-
     except StopIteration:
-        pass
-    
-    
-    
-    """
-    for root, dirs, files in os.walk(folder_structure):
-        try:
-            path = root.split(os.sep)
-            param_path = folder_structure.split(os.sep)
-
-            root_index = param_path[-1]
-            root_dir_index = path.index(root_index)
-            dir_lis = [x for x in path[root_dir_index:]]
-
-            for pattern in regex_tvs_folder:
-                match_object = pattern.findall(os.path.basename(root))
-                folder = os.path.basename(root)
-                #print(folder)
-                # If the folder is a TV show
-                if (match_object):
-                    # TODO: code that gets folder name, season and creates folder/-s from the data (also check if the folder has alread been created)
-                    
-                    #print(folder)
-                    #make_directory(get_show_name(folder, get_all_tv_show_folder_pattern()), src_dir, stru_dir )
-                    
-                    #print((len(path) - 1) * '---', os.path.basename(root)) 
-                    for file in files:
-                        try:
-                            extension = file.split(".")[-1]
-                            if (validate_extension(extension)):
-                                for pattern in regex_tvs_file:
-                                    if pattern.search(file) != None:
-                                        # TODO: code that gets file name and season and does stuff with it
-                                        #print(get_show_name(file, get_all_tv_shows_file_pattern()))
-                                        #print(len(path) * '---', file)
-                                        break
-                        except UnicodeEncodeError:
-                            pass       
-                    break     
-        except UnicodeEncodeError:
-            pass
-    """            
+        pass           
 
 
 def tv_show_patterns_file():
@@ -174,7 +124,6 @@ def tv_show_patterns_folder():
 
 
 def get_season_and_number(item, patterns):
-    # Edge case
     match_object = None
     for patt in patterns:
             match_object = patt.findall(item)
@@ -182,6 +131,7 @@ def get_season_and_number(item, patterns):
                 break
     if len(match_object) == 0:
         return None
+    # Edge case
     if (item[0] == "24"):
         return None
     return "Season " + get_number(match_object[0])
@@ -260,14 +210,11 @@ def validate_extension(f_extension):
     
     return False
 
-
-# TODO: structured directory functionality
+# Create directory for TV show or season of TV Show
 def make_directory(sep, original, folder_name, src_dir, stru_dir):
-    patt = tv_show_patterns_folder
     stru_dir_absolute_path = str(stru_dir) + sep + str(folder_name)
     src_dir_absoulute_path = src_dir + sep + original
     if not os.path.exists(stru_dir_absolute_path):
-        #print('I am now creating the path: ', stru_dir_absolute_path)
         os.makedirs(stru_dir_absolute_path)
     try:
         next_immediate_item = next(os.walk(src_dir_absoulute_path))[1] +next(os.walk(src_dir_absoulute_path))[2]
@@ -281,6 +228,7 @@ def make_directory(sep, original, folder_name, src_dir, stru_dir):
     except StopIteration:
         pass
 
+# Copies a TV show video file to place in structured folder
 def copy_file(seperator, src_dir, stru_dir, show_name, season, file_name):
     extension = file_name.split(".")[-1]
     if not validate_extension(extension):
@@ -296,6 +244,7 @@ def copy_file(seperator, src_dir, stru_dir, show_name, season, file_name):
 
     return 0
 
+# Copies a Movie video file to place in structured folder
 def copy_file_mov(src_dir, stru_dir, item, seperator):
     if os.path.isdir(src_dir + seperator + item):
         next_immediate_item = next(os.walk(src_dir + seperator + item))[1] + next(os.walk(src_dir + seperator + item))[2]
