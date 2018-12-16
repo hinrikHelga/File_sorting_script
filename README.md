@@ -2,7 +2,7 @@
 
 This is a python script that sorts .mp4, .avi and .mkv files to their corresponding folders and sub-folders.
 
-![alt text](https://www.google.com/url?sa=i&source=images&cd=&cad=rja&uact=8&ved=2ahUKEwj8_fj5oKXfAhXDzIUKHZ6nCNgQjRx6BAgBEAU&url=https%3A%2F%2Fcommons.wikimedia.org%2Fwiki%2FFile%3APython-logo-notext.svg&psig=AOvVaw0I8Ji_NkVfMwhlK1aXamcv&ust=1545080874344653)
+![alt text](https://upload.wikimedia.org/wikipedia/commons/f/f8/Python_logo_and_wordmark.svg)
 
 ## Getting Started
 
