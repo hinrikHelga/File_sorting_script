@@ -11,6 +11,7 @@ def main():
     sep = set_seperator()
 
     # Traverse recursively through root directory
+    #print(get_show_name('the.big.bang.theory.817.hdtv-lol.mp4', get_all_tv_shows_file_pattern()))
     traverse_root(sep, regex_tvs_file, regex_tvs_folder)
 
 def set_seperator():
@@ -22,25 +23,32 @@ def set_seperator():
 
 
 def traverse_root(seperator, regex_tvs_file, regex_tvs_folder):
-    #src_dir = sys.argv[1]
-    #stru_dir = sys.argv[2]
-    src_dir = r"C:\Users\Hinrik Helgason\Google Drive\HR\3. ár\Haustönn\Forritunarmalid Python\Hopverkefni_data\downloads"
-    stru_dir = r"C:\Users\Hinrik Helgason\Google Drive\HR\3. ár\Haustönn\Forritunarmalid Python\Hopverkefni_data\structured"
-    print(src_dir)
-    print(stru_dir)
-
+    src_dir = sys.argv[1]
+    stru_dir = sys.argv[2]
+    #src_dir = r"C:\Users\Hinrik Helgason\Google Drive\HR\3. ár\Haustönn\Forritunarmalid Python\Hopverkefni_data\downloads"
+    #stru_dir = r"C:\Users\Hinrik Helgason\Google Drive\HR\3. ár\Haustönn\Forritunarmalid Python\Hopverkefni_data\structured"
+    #print(src_dir)
+    #print(stru_dir)
+    counter = 0
     try:
-        next_immediate_item = next(os.walk(src_dir))[1]
-
+        next_immediate_item = next(os.walk(src_dir))[1] + next(os.walk(src_dir))[2]
         for item in next_immediate_item:
+
             src_path = src_dir + seperator + item
             for patt in regex_tvs_folder:
                 match_object = patt.findall(item)
                 if len(match_object) > 0:
-
                     if os.path.isdir(src_path):
-                        make_directory(seperator, item, get_show_name(item, get_all_tv_show_folder_pattern()), src_dir, stru_dir)
-                break
+                        make_directory(seperator, item, get_show_name(item, get_all_tv_show_folder_pattern(), 'folder'), src_dir, stru_dir)
+                        pass
+                    break
+            for patt in regex_tvs_file:
+                match_object = patt.findall(item)
+                if len(match_object) > 0:
+                    if os.path.isfile(src_path):
+                        copy_file(seperator, src_dir, stru_dir, get_show_name(item, get_all_tv_shows_file_pattern(), 'file'), get_season_and_number(item, tv_show_patterns_file()), item)
+                        pass
+
     except StopIteration:
         pass
     
@@ -105,12 +113,16 @@ def tv_show_patterns_file():
     # Accepts hdtv, HDTV, has bugs so not included in list
     regex_tv_shows_pattern6 = re.compile(r"(hdtv|HDTV)")
 
+    # Accepts integers
+    regex_tv_shows_pattern7 = re.compile(r"(^[0-9]{1,2}$)")
+
     regex_patterns = [regex_tv_shows_pattern1,
                     regex_tv_shows_pattern2,
                     regex_tv_shows_pattern3, 
                     regex_tv_shows_pattern4,
                     regex_tv_shows_pattern5,
-                    regex_tv_shows_pattern6]
+                    regex_tv_shows_pattern6,
+                    regex_tv_shows_pattern7]
     return regex_patterns
 
 
@@ -146,13 +158,15 @@ def tv_show_patterns_folder():
     return regex_patterns
 
 
-def get_season_and_number(item):
+def get_season_and_number(item, patterns):
     # Edge case
     match_object = None
-    for patt in tv_show_patterns_folder():
+    for patt in patterns:
             match_object = patt.findall(item)
             if len(match_object) > 0:
                 break
+    if len(match_object) == 0:
+        return None
     if (item[0] == "24"):
         return None
     return "Season " + get_number(match_object[0])
@@ -173,20 +187,20 @@ def get_number(s):
     return number
    
 
-def get_show_name(file, reg_pat):
+def get_show_name(file, reg_pat, item_type):
     words_only = regex.findall(r"[a-zA-Z0-9\p{L}]+", file)
     for i, item in enumerate(words_only):
         if reg_pat.search(item) != None:
             # So TV shows whose is name is a number is validated
-            if i == 0 and item.isdigit():
+            if i == 0 and item.isdigit() and item_type == 'folder':
                 continue
             
             # If there is a number in the TV Show title but it's not the season number
-            elif not regex.search(r"([Ss]{1}eason|[Ss]{1}erie|[Ss]{1}er.a)", words_only[i-1]) and item.isdigit():
+            elif not regex.search(r"([Ss]{1}eason|[Ss]{1}erie|[Ss]{1}er.a)", words_only[i-1]) and item.isdigit() and item_type == 'folder':
                 continue 
 
             # If the word in list before the match, i.e. if the match is "2" and word before "2" is equal to "Season", remove Season
-            elif regex.search(r"([Ss]{1}eason|[Ss]{1}erie|[Ss]{1}er.a)", words_only[i-1]):
+            elif regex.search(r"([Ss]{1}eason|[Ss]{1}erie|[Ss]{1}er.a)", words_only[i-1]) and item_type == 'folder':
                 words_only = words_only[:words_only.index(words_only[i-1])]                
 
             # Otherwise, get the elements before the regex match
@@ -225,7 +239,6 @@ def get_all_tv_show_folder_pattern():
 def validate_extension(f_extension):
     # Only validate video files
     if (f_extension == "avi" or
-        f_extension == "mkv" or
         f_extension == "mp4"):
         return True
     
@@ -235,28 +248,33 @@ def validate_extension(f_extension):
 # TODO: structured directory functionality
 def make_directory(sep, original, folder_name, src_dir, stru_dir):
     patt = tv_show_patterns_folder
-    
-    print("panus")
-    #print(match_object)
-    #print('Original: ', original)
-    #print('folder_name: ', folder_name)
-    #rint('Source: ', src_dir)
-    #print('Structured: ', stru_dir)
     stru_dir_absolute_path = str(stru_dir) + sep + str(folder_name)
     src_dir_absoulute_path = src_dir + sep + original
     if not os.path.exists(stru_dir_absolute_path):
         #print('I am now creating the path: ', stru_dir_absolute_path)
         os.makedirs(stru_dir_absolute_path)
     try:
-        next_immediate_item = next(os.walk(src_dir_absoulute_path))[1]
+        next_immediate_item = next(os.walk(src_dir_absoulute_path))[1] +next(os.walk(src_dir_absoulute_path))[2]
         for item in next_immediate_item:
        
             if os.path.isdir(src_dir_absoulute_path):
-                #print(item)
-                print(get_show_name(item, get_all_tv_show_folder_pattern()))
-                make_directory(sep, item, get_show_name(item, get_all_tv_show_folder_pattern()), src_dir_absoulute_path + sep, stru_dir_absolute_path + sep)
+                make_directory(sep, item, get_show_name(item, get_all_tv_show_folder_pattern(), 'folder'), src_dir_absoulute_path + sep, stru_dir_absolute_path + sep)
+
+            if os.path.isfile(src_dir_absoulute_path):
+                copy_file(sep, src_dir_absoulute_path, stru_dir_absolute_path, get_show_name(item, get_all_tv_shows_file_pattern(), 'file'), get_season_and_number(tv_show_patterns_file(), item), item)
     except StopIteration:
         pass
 
+def copy_file(seperator, src_dir, stru_dir, show_name, season, file_name):
+    if isinstance(show_name, list):
+        return 0
+    if season == None:
+        return 0
+    dir = stru_dir + seperator + show_name + seperator + season
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+    
+    shutil.copyfile(src_dir + seperator + file_name, dir + seperator + file_name)
 
+    return 0
 print(main())
