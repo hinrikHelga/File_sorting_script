@@ -1,21 +1,31 @@
-import sys, glob, shutil, os, re, regex
+import sys, glob, shutil, os, re, regex, platform
 
 def main():
-    downloads = sys.argv[1]
+    #downloads = sys.argv[1]
     #downloads = r"C:\Users\Hinrik Helgason\Google Drive\HR\3. ár\Haustönn\Forritunarmalid Python\Hopverkefni_data\downloads"
+    #structured = r"C:\Users\Hinrik Helgason\Google Drive\HR\3. ár\Haustönn\Forritunarmalid Python\Hopverkefni_data"
     #structured = sys.argv[2]
 
     regex_tvs_file = tv_show_patterns_file()
     regex_tvs_folder = tv_show_patterns_folder()
+    sep = set_seperator()
 
     # Traverse recursively through root directory
-    traverse_root(downloads, regex_tvs_file, regex_tvs_folder)
+    traverse_root(sep, regex_tvs_file, regex_tvs_folder)
+
+def set_seperator():
+    sep = "/"
+    if platform.system() == "Windows":
+        sep = "\\"
+
+    return sep
 
 
-
-def traverse_root(folder_structure, regex_tvs_file, regex_tvs_folder):
-    src_dir = sys.argv[1]
-    stru_dir = sys.argv[2]
+def traverse_root(seperator, regex_tvs_file, regex_tvs_folder):
+    #src_dir = sys.argv[1]
+    #stru_dir = sys.argv[2]
+    src_dir = r"C:\Users\Hinrik Helgason\Google Drive\HR\3. ár\Haustönn\Forritunarmalid Python\Hopverkefni_data\downloads"
+    stru_dir = r"C:\Users\Hinrik Helgason\Google Drive\HR\3. ár\Haustönn\Forritunarmalid Python\Hopverkefni_data\structured"
     print(src_dir)
     print(stru_dir)
 
@@ -23,20 +33,20 @@ def traverse_root(folder_structure, regex_tvs_file, regex_tvs_folder):
         next_immediate_item = next(os.walk(src_dir))[1]
 
         for item in next_immediate_item:
-            src_path = src_dir + item
+            src_path = src_dir + seperator + item
             for patt in regex_tvs_folder:
                 match_object = patt.findall(item)
                 if len(match_object) > 0:
 
                     if os.path.isdir(src_path):
-                        make_directory(item, get_show_name(item, get_all_tv_show_folder_pattern()), src_dir, stru_dir)
+                        make_directory(seperator, item, get_show_name(item, get_all_tv_show_folder_pattern()), src_dir, stru_dir)
                 break
     except StopIteration:
         pass
     
     
     
-    
+    """
     for root, dirs, files in os.walk(folder_structure):
         try:
             path = root.split(os.sep)
@@ -73,7 +83,7 @@ def traverse_root(folder_structure, regex_tvs_file, regex_tvs_folder):
                     break     
         except UnicodeEncodeError:
             pass
-            
+    """            
 
 
 def tv_show_patterns_file():
@@ -223,7 +233,7 @@ def validate_extension(f_extension):
 
 
 # TODO: structured directory functionality
-def make_directory(original, folder_name, src_dir, stru_dir):
+def make_directory(sep, original, folder_name, src_dir, stru_dir):
     patt = tv_show_patterns_folder
     
     print("panus")
@@ -232,8 +242,8 @@ def make_directory(original, folder_name, src_dir, stru_dir):
     #print('folder_name: ', folder_name)
     #rint('Source: ', src_dir)
     #print('Structured: ', stru_dir)
-    stru_dir_absolute_path = str(stru_dir) + str(folder_name)
-    src_dir_absoulute_path = src_dir + original
+    stru_dir_absolute_path = str(stru_dir) + sep + str(folder_name)
+    src_dir_absoulute_path = src_dir + sep + original
     if not os.path.exists(stru_dir_absolute_path):
         #print('I am now creating the path: ', stru_dir_absolute_path)
         os.makedirs(stru_dir_absolute_path)
@@ -243,8 +253,8 @@ def make_directory(original, folder_name, src_dir, stru_dir):
        
             if os.path.isdir(src_dir_absoulute_path):
                 #print(item)
-                print(get_show_name(item, get_all_tv_show_folder_pattern))
-                make_directory(item, get_show_name(item, get_all_tv_show_folder_pattern()), src_dir_absoulute_path + "\\", stru_dir_absolute_path + "\\")
+                print(get_show_name(item, get_all_tv_show_folder_pattern()))
+                make_directory(sep, item, get_show_name(item, get_all_tv_show_folder_pattern()), src_dir_absoulute_path + sep, stru_dir_absolute_path + sep)
     except StopIteration:
         pass
 
