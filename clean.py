@@ -253,7 +253,6 @@ def copy_file_mov(src_dir, stru_dir, item, seperator):
         return 0
     if not os.path.exists(stru_dir):
         os.makedirs(stru_dir)
-    print(stru_dir)
     try:
         shutil.copyfile(src_dir + seperator + item, stru_dir)
     except IsADirectoryError:
