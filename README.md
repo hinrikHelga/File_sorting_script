@@ -2,11 +2,11 @@
 
 This is a python script that sorts .mp4, .avi and .mkv files to their corresponding folders and sub-folders.
 
+![alt text](https://upload.wikimedia.org/wikipedia/commons/f/f8/Python_logo_and_wordmark.svg)
 
 ## Getting Started
 
 What you need to do to get started. First you will need to download the script from the repository here on Github and put it onto your local machine.
-
 
 ### Prerequisites
 
@@ -14,18 +14,23 @@ Things you need to install the software and how to install them
 
 ```
 You will need to have Python 3.7
+If using Ubuntu:
+    $ sudo apt-get install python3 python3-pip
+else:
+```
+[Click here to download Python 3.7](https://www.python.org/downloads/)
 
-A console to run the script
+```
+Open a console to run the script
 ```
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
+A step by step series of examples that tell you how to get a development environment running
 
-1. Step 1: Download the script
+1. Step 1: Download the script from our Github
 2. Step 2: Run the script - python3 clean.py /path/to/download/folder /path/to/structured/folder
 3. Step 3: Profit.
-
 
 ## Authors
 
@@ -35,6 +40,10 @@ A step by step series of examples that tell you how to get a development env run
 
 ## Programming jokes
 
-* Q: Why did the programmer quit his job?
-
-* A: Because he didn't get arrays.
+```
+Q: Why did the programmer quit his job?
+A: Because he didn't get arrays.
+------------------------------------------------
+Q: Why do java programmers have to wear glasses?
+A: Because they don't C#.
+```
