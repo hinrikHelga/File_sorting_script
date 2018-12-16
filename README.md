@@ -32,6 +32,10 @@ A step by step series of examples that tell you how to get a development environ
 2. Step 2: Run the script - python3 clean.py /path/to/download/folder /path/to/structured/folder
 3. Step 3: Profit.
 
+### Notes
+
+We would like to mention that the program was developed on multiple different platforms, which did not hinder the programs development progress. However, just before submission on the assignment, the final product yielded very different results. We strongly recommend running the script on a UNIX-based system.
+
 ## Authors
 
 * **Benedikt Þorri Þórarinsson** - _benediktt16@ru.is_
