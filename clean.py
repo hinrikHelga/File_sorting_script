@@ -239,6 +239,7 @@ def get_all_tv_show_folder_pattern():
 def validate_extension(f_extension):
     # Only validate video files
     if (f_extension == "avi" or
+        f_extension == "mkv" or
         f_extension == "mp4"):
         return True
     
